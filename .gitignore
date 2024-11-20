@@ -3,4 +3,10 @@
 *.o
 *.so
 genpoints
-
+.cache/
+compile_commands.json
+.vscode/
+*.dll
+*.exe
+*.lib
+venv/
