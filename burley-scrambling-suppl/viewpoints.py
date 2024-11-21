@@ -69,9 +69,9 @@ class PointView(QFrame):
         self.points = np.array([])
         self.showFFT = False
 
-    def paintEvent(self, e):
-        p = QPainter(self)
-        self.paint(p)
+    def paintEvent(self, _):
+        with QPainter(self) as p:
+            self.paint(p)
 
     def paint(self, p):
         if self.showFFT:
