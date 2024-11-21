@@ -24,6 +24,9 @@ genpoints.sequence_names.restype = ctypes.c_char_p
 genpoints.sequence_names.argtypes = []
 sequences = genpoints.sequence_names().decode('utf-8').split(";")
 
+if hasattr(genpoints, "init"):
+    genpoints.init()
+
 def zeros(nvals):
     return np.zeros(nvals, dtype=np.float32)
 
