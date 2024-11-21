@@ -37,7 +37,7 @@ def genPoints(npoints, udim, vdim, seed, sequence):
         vseed = seed
     genpoints.genpoints(bytes(sequence, encoding='utf-8'), npoints, udim, seed, upoints)
     genpoints.genpoints(bytes(sequence, encoding='utf-8'), npoints, vdim, vseed, vpoints)
-    return zip(upoints, vpoints)
+    return np.column_stack((upoints, vpoints))
 
 class Colors:
     points = QColor('black')
@@ -54,7 +54,7 @@ class PointView(QFrame):
         palette = QPalette(self.palette())
         palette.setColor(QPalette.Window, Colors.bg)
         self.setPalette(palette)
-        self.points = []
+        self.points = np.array([])
         self.showFFT = False
 
     def paintEvent(self, e):
