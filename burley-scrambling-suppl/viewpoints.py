@@ -126,11 +126,12 @@ class PointView(QFrame):
                     p.drawLine(int(s0), int(su), int(s1), int(su))
 
             for x,y in self.points:
-                p.setPen(QPen(Colors.points))
+                pen = QPen(Colors.points)
+                pen.setWidth(3)
+                p.setPen(pen)
                 p.drawPoint(int(s0-10), int((.5-y)*s+w/2))
                 p.drawPoint(int((x-.5)*s+w/2), int(s0-10))
 
-                pen = QPen(Colors.points)
                 pen.setWidth(3)
                 p.setPen(pen)
                 p.drawPoint(int((x-.5)*s+w/2), int((.5-y)*s+w/2))
