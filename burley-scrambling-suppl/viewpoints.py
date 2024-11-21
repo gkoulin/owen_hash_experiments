@@ -177,8 +177,8 @@ class Sampler(QWidget):
         self.sequencetype_combobox.insertItems(0, sequences)
 
         self.n_slider = Slider(self, "nsamples", 1, 4096, 64)
-        self.udim_slider = Slider(self, "u dim", 0, 7, 0)
-        self.vdim_slider = Slider(self, "v dim", 0, 7, 1)
+        self.udim_slider = Slider(self, "u dim", 0, 31, 0)
+        self.vdim_slider = Slider(self, "v dim", 0, 31, 1)
         self.seed_slider = Slider(self, "seed", 1, 100, 1)
 
         self.showFFT_checkbox = QCheckBox("show FFT", self)
