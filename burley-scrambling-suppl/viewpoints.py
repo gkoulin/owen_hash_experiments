@@ -14,23 +14,16 @@ try:
 except ImportError as ex:
     print(f"module {ex.name} not used")
 
-sequences = '''
-   random
-   faure05
-   sobol
-   sobol_rds
-   sobol_owen
-   sobol_owen_hash_lk
-   sobol_owen_hash_v2
-   sobol_owen_hash_fast
-   sobol_owen_hash_good
-'''.split()
-
 genpoints = np.ctypeslib.load_library(os.getenv('GENPOINTS_LIB', 'genpoints'), '.')
 array_1d_float32 = np.ctypeslib.ndpointer(dtype=np.float32, ndim=1, flags='CONTIGUOUS')
 # extern "C" void genpoints(const char* seq, uint32_t n, uint32_t dim, uint32_t seed, float* x);
-genpoints.genpoints.result = None
+genpoints.genpoints.restype = None
 genpoints.genpoints.argtypes = [ctypes.c_char_p, ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, array_1d_float32]
+
+genpoints.sequence_names.restype = ctypes.c_char_p
+genpoints.sequence_names.argtypes = []
+sequences = genpoints.sequence_names().decode('utf-8').split(";")
+
 def zeros(nvals):
     return np.zeros(nvals, dtype=np.float32)
 
