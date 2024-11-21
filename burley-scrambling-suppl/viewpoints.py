@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
 import sys
+import os
 import ctypes
 import numpy as np
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError as ex:
+    print(f"module {ex.name} not used")
 
 sequences = '''
    random
@@ -19,7 +26,7 @@ sequences = '''
    sobol_owen_hash_good
 '''.split()
 
-genpoints = np.ctypeslib.load_library('genpoints', '.')
+genpoints = np.ctypeslib.load_library(os.getenv('GENPOINTS_LIB', 'genpoints'), '.')
 array_1d_float32 = np.ctypeslib.ndpointer(dtype=np.float32, ndim=1, flags='CONTIGUOUS')
 # extern "C" void genpoints(const char* seq, uint32_t n, uint32_t dim, uint32_t seed, float* x);
 genpoints.genpoints.result = None
