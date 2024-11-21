@@ -133,6 +133,8 @@ class PointView(QFrame):
                 p.drawPoint(int((x-.5)*s+w/2), int((.5-y)*s+w/2))
 
 class Slider(QWidget):
+    valueChanged = pyqtSignal(int)
+
     def __init__(self, parent, label, min, max, initial):
         QWidget.__init__(self, parent)
         self.value = None
@@ -159,6 +161,7 @@ class Slider(QWidget):
         self.value = val
         self.slider.setValue(val)
         self.spin.setValue(val)
+        self.valueChanged.emit(self.value)
 
     def setMaximum(self, max):
         self.slider.setMaximum(max)
@@ -196,10 +199,10 @@ class Sampler(QWidget):
         l.addLayout(slider_grid)
 
         self.sequencetype_combobox.activated.connect(self.updatePoints)
-        self.n_slider.slider.valueChanged.connect(self.updatePoints)
-        self.udim_slider.slider.valueChanged.connect(self.updatePoints)
-        self.vdim_slider.slider.valueChanged.connect(self.updatePoints)
-        self.seed_slider.slider.valueChanged.connect(self.updatePoints)
+        self.n_slider.valueChanged.connect(self.updatePoints)
+        self.udim_slider.valueChanged.connect(self.updatePoints)
+        self.vdim_slider.valueChanged.connect(self.updatePoints)
+        self.seed_slider.valueChanged.connect(self.updatePoints)
         self.showFFT_checkbox.stateChanged.connect(self.updatePoints)
         self.updatePoints()
 
