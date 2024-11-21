@@ -46,10 +46,22 @@ class Colors:
     grid16 = QColor('lightGray')
     grid4 = QColor('gray')
 
+
+def prev_power_of_two(n):
+    if n < 1:
+        return 0
+    n |= n >> 1
+    n |= n >> 2
+    n |= n >> 4
+    n |= n >> 8
+    n |= n >> 16
+    return (n + 1) >> 1
+
+
 class PointView(QFrame):
     def __init__(self, parent=None):
         QFrame.__init__(self, parent)
-        self.setFixedSize(512, 512)
+        self.setMinimumSize(512, 512)
         self.setAutoFillBackground(True)
         palette = QPalette(self.palette())
         palette.setColor(QPalette.Window, Colors.bg)
@@ -63,23 +75,32 @@ class PointView(QFrame):
 
     def paint(self, p):
         if self.showFFT:
-            ft = np.zeros( ( 512, 512 ) )
+            w = prev_power_of_two(min(self.width(), self.height()))
+            ft = np.zeros( ( w, w ) )
             for x,y in self.points:
                 if x >= 0 and x < 1 and y >= 0 and y < 1:
-                    ft[int(x*512),int(y*512)] = 1
+                    ft[int(x*w),int(y*w)] = 1
             ft -= ft.mean()
             ft = abs(np.fft.fftshift(np.fft.fft2(ft)))
             ft *= 64 / ft.mean()
             ft = ft.clip(0, 255).astype(np.uint32)
             ft = (255 << 24 | ft[:,:] << 16 | ft[:,:] << 8 | ft[:,:]).flatten()
             im = QImage(ft, 512, 512, QImage.Format_RGB32)
-            p.drawImage(QPoint(0, 0), im)
+
+            rect = self.rect()
+            scaled_size = im.size().scaled(rect.size(), Qt.AspectRatioMode.KeepAspectRatio)
+            x = (rect.width() - scaled_size.width()) // 2
+            y = (rect.height() - scaled_size.height()) // 2
+            target_rect = QRect(x, y, scaled_size.width(), scaled_size.height())
+            p.drawImage(target_rect, im)
         else:
-            s = 450
-            s0, s1 = 256-s/2,256+s/2
+            w = min(self.width(), self.height())
+            s = w - 62
+            p.translate((self.width() - w) / 2, (self.height() - w) / 2)
+            s0, s1 = w/2-s/2,w/2+s/2
             p.setPen(Colors.outline)
             p.drawRect(int(s0), int(s0), int(s), int(s))
-            s0 = (512-s)/2
+            s0 = (w-s)/2
             s1 = s0 + s
 
             if self.sequence.startswith('faure05'):
@@ -103,13 +124,13 @@ class PointView(QFrame):
 
             for x,y in self.points:
                 p.setPen(QPen(Colors.points))
-                p.drawPoint(int(s0-10), int((.5-y)*s+256))
-                p.drawPoint(int((x-.5)*s+256), int(s0-10))
+                p.drawPoint(int(s0-10), int((.5-y)*s+w/2))
+                p.drawPoint(int((x-.5)*s+w/2), int(s0-10))
 
                 pen = QPen(Colors.points)
                 pen.setWidth(3)
                 p.setPen(pen)
-                p.drawPoint(int((x-.5)*s+256), int((.5-y)*s+256))
+                p.drawPoint(int((x-.5)*s+w/2), int((.5-y)*s+w/2))
 
 class Slider(QWidget):
     def __init__(self, parent, label, min, max, initial):
@@ -124,11 +145,12 @@ class Slider(QWidget):
         self.slider.setMaximum(max)
         self.setValue(initial)
         l = QHBoxLayout(self)
+        l.setContentsMargins(0,0,0,0)
         l.addWidget(self.label)
-        l.addWidget(self.slider)
+        l.addWidget(self.slider, stretch=1)
         l.addWidget(self.text)
-        self.label.setFixedWidth(80)
-        self.text.setFixedWidth(80)
+        self.label.setFixedWidth(50)
+        self.text.setFixedWidth(50)
 
     def setValue(self, val):
         try: val = int(str(val))
@@ -145,8 +167,6 @@ class Sampler(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.pv = PointView(self)
-        self.sequencetype_label = QLabel("sequence", self)
-        self.sequencetype_label.setFixedWidth(100)
         self.sequencetype_combobox = QComboBox(self)
         self.sequencetype_combobox.insertItems(0, sequences)
 
@@ -158,21 +178,22 @@ class Sampler(QWidget):
         self.showFFT_checkbox = QCheckBox("show FFT", self)
 
         l = QVBoxLayout(self)
-        l.addWidget(self.pv)
+        l.setSpacing(5)
+        l.addWidget(self.pv, stretch=1)
 
-        g = QGridLayout()
-        g.addWidget(self.sequencetype_label, 0, 0)
-        g.addWidget(self.sequencetype_combobox, 0, 1)
-        l.addLayout(g)
+        combo_layout = QHBoxLayout(self)
+        combo_layout.setSpacing(10)
+        combo_layout.addWidget(QLabel("sequence", self), stretch=0)
+        combo_layout.addWidget(self.sequencetype_combobox, stretch=1)
+        combo_layout.addWidget(self.showFFT_checkbox, stretch=0)
+        l.addLayout(combo_layout)
 
-        l.addWidget(self.n_slider)
-        l.addWidget(self.udim_slider)
-        l.addWidget(self.vdim_slider)
-        l.addWidget(self.seed_slider)
-
-        h = QHBoxLayout()
-        l.addLayout(h)
-        h.addWidget(self.showFFT_checkbox);
+        slider_grid = QGridLayout(self)
+        slider_grid.addWidget(self.n_slider, 0, 0)
+        slider_grid.addWidget(self.udim_slider, 0, 1)
+        slider_grid.addWidget(self.vdim_slider, 1, 0)
+        slider_grid.addWidget(self.seed_slider, 1, 1)
+        l.addLayout(slider_grid)
 
         self.sequencetype_combobox.activated.connect(self.updatePoints)
         self.n_slider.slider.valueChanged.connect(self.updatePoints)
