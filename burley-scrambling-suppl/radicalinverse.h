@@ -7,7 +7,7 @@
 inline float numDigitsForBase(uint32_t base)
 {
     int numDigits = 0;
-    for (uint64_t maxval = base; maxval < (1ul<<32); maxval *= base, numDigits++);
+    for (uint64_t maxval = base; maxval < std::numeric_limits<uint64_t>::max(); maxval *= base, numDigits++);
     return numDigits;
 }
 

@@ -25,7 +25,7 @@ uint32_t hash(uint32_t x)
 
 extern "C" void genpoints(const char* seqname, uint32_t n, uint32_t dim, uint32_t seed, float* x)
 {
-    constexpr float S = float(1.0/(1ul<<32));
+    constexpr float S = 1.0f / static_cast<float>(std::numeric_limits<uint32_t>::max());
     seed = hash(seed);
 
     std::string seq(seqname);
