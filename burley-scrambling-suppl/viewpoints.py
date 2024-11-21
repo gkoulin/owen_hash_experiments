@@ -145,9 +145,10 @@ class Slider(QWidget):
         self.value = None
         self.label = QLabel(label, self)
         self.slider = QSlider(Qt.Horizontal, self)
-        self.text = QLineEdit(self)
+        self.spin = QSpinBox(self)
+        self.spin.setMaximum(2**31 - 1)
         self.slider.valueChanged.connect(self.setValue)
-        self.text.textChanged.connect(self.setValue)
+        self.spin.valueChanged.connect(self.setValue)
         self.slider.setMinimum(min)
         self.slider.setMaximum(max)
         self.setValue(initial)
@@ -155,17 +156,16 @@ class Slider(QWidget):
         l.setContentsMargins(0,0,0,0)
         l.addWidget(self.label)
         l.addWidget(self.slider, stretch=1)
-        l.addWidget(self.text)
-        self.label.setFixedWidth(50)
-        self.text.setFixedWidth(50)
+        l.addWidget(self.spin)
+        self.label.setMinimumWidth(50)
 
     def setValue(self, val):
-        try: val = int(str(val))
+        try: val = int(val)
         except: return
         if self.value == val: return
         self.value = val
         self.slider.setValue(val)
-        self.text.setText(str(val))
+        self.spin.setValue(val)
 
     def setMaximum(self, max):
         self.slider.setMaximum(max)
