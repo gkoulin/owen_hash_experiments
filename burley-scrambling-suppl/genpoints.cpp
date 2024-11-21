@@ -88,3 +88,9 @@ extern "C" void genpoints(const char* seqname, uint32_t n, uint32_t dim, uint32_
         abort();
     }
 }
+
+extern "C" char const* sequence_names()
+{
+  return "random;faure05;sobol;sobol_rds;sobol_owen;sobol_owen_hash_lk;sobol_owen_hash_v2;sobol_owen_hash_fast;"
+         "sobol_owen_hash_good";
+}
