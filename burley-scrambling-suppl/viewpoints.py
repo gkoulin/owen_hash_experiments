@@ -61,6 +61,17 @@ def prev_power_of_two(n):
     return (n + 1) >> 1
 
 
+def star_discrepancy(points):
+    n, _ = points.shape
+    if n == 0:
+        return 0
+    volumes = np.prod(points, axis=1)
+    counts = np.sum(np.all(np.swapaxes(points[:, np.newaxis, :] <= points, 0, 1), axis=2), axis=1)
+    discrepancies = np.abs(counts / n - volumes)
+    max_discrepancy = np.max(discrepancies)
+    return max_discrepancy
+
+
 class PointView(QFrame):
     def __init__(self, parent=None):
         QFrame.__init__(self, parent)
@@ -174,6 +185,8 @@ class Sampler(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.pv = PointView(self)
+
+        self.discrepancy = QLabel(self)
         self.sequencetype_combobox = QComboBox(self)
         self.sequencetype_combobox.insertItems(0, sequences)
 
@@ -194,6 +207,13 @@ class Sampler(QWidget):
         combo_layout.addWidget(self.sequencetype_combobox, stretch=1)
         combo_layout.addWidget(self.showFFT_checkbox, stretch=0)
         l.addLayout(combo_layout)
+
+        discrepancy_row = QHBoxLayout(self)
+        discrepancy_row.setSpacing(10)
+        discrepancy_row.addWidget(QLabel("star discrepancy:", self))
+        discrepancy_row.addWidget(self.discrepancy)
+        discrepancy_row.addSpacerItem(QSpacerItem(0, 0, QSizePolicy.Policy.Expanding))
+        l.addLayout(discrepancy_row)
 
         slider_grid = QGridLayout(self)
         slider_grid.addWidget(self.n_slider, 0, 0)
@@ -221,6 +241,7 @@ class Sampler(QWidget):
         self.pv.vdim = vdim
         self.pv.showFFT = self.showFFT_checkbox.checkState() == Qt.Checked
         self.pv.points = genPoints(npoints, udim, vdim, seed, sequence)
+        self.discrepancy.setText(f"{star_discrepancy(self.pv.points):.3f}")
         self.pv.update()
 
 app = QApplication(sys.argv)
