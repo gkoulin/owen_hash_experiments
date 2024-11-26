@@ -44,6 +44,7 @@ def genPoints(npoints, udim, vdim, seed, sequence):
 
 class Colors:
     points = QColor('black')
+    points_duplicate = QColor('red')
     bg = QColor('white')
     outline = QColor('gray')
     grid16 = QColor('lightGray')
@@ -136,16 +137,20 @@ class PointView(QFrame):
                     p.drawLine(int(su), int(s0), int(su), int(s1))
                     p.drawLine(int(s0), int(su), int(s1), int(su))
 
-            for x,y in self.points:
+            unique_points, counts = np.unique(self.points, return_counts=True, axis=0)
+            for i, (x, y) in enumerate(unique_points):
                 pen = QPen(Colors.points)
-                pen.setWidth(3)
-                p.setPen(pen)
-                p.drawPoint(int(s0-10), int((.5-y)*s+w/2))
-                p.drawPoint(int((x-.5)*s+w/2), int(s0-10))
+                if counts[i] > 1:
+                    pen.setColor(Colors.points_duplicate)
 
                 pen.setWidth(3)
                 p.setPen(pen)
-                p.drawPoint(int((x-.5)*s+w/2), int((.5-y)*s+w/2))
+                p.drawPoint(int(s0 - 10), int((0.5 - y) * s + w / 2))
+                p.drawPoint(int((x - 0.5) * s + w / 2), int(s0 - 10))
+
+                pen.setWidth(3)
+                p.setPen(pen)
+                p.drawPoint(int((x - 0.5) * s + w / 2), int((0.5 - y) * s + w / 2))
 
 class Slider(QWidget):
     valueChanged = pyqtSignal(int)
