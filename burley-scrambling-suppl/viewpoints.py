@@ -251,5 +251,6 @@ class Sampler(QWidget):
 
 app = QApplication(sys.argv)
 w = Sampler()
+w.setWindowTitle(os.path.basename(__file__))
 w.show()
 app.exec_()
