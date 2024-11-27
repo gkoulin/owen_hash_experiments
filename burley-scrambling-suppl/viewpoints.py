@@ -139,15 +139,19 @@ class PointView(QFrame):
 
             unique_points, counts = np.unique(self.points, return_counts=True, axis=0)
             for i, (x, y) in enumerate(unique_points):
-                pen = QPen(Colors.points)
+                color = Colors.points
                 if counts[i] > 1:
-                    pen.setColor(Colors.points_duplicate)
+                    color = Colors.points_duplicate
 
+                color.setAlphaF(0.1)
+                pen = QPen(color)
                 pen.setWidth(3)
                 p.setPen(pen)
                 p.drawPoint(int(s0 - 10), int((0.5 - y) * s + w / 2))
                 p.drawPoint(int((x - 0.5) * s + w / 2), int(s0 - 10))
 
+                color.setAlphaF(1.0)
+                pen.setColor(color)
                 pen.setWidth(3)
                 p.setPen(pen)
                 p.drawPoint(int((x - 0.5) * s + w / 2), int((0.5 - y) * s + w / 2))
